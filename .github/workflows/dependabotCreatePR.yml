@@ -33,7 +33,7 @@ jobs:
           commit_sha=${{ github.event.pull_request.head.sha }}
 
           # Cherry-pick the commit onto the new branch
-          git cherry-pick $commit_sha
+          git cherry-pick --strategy=recursive -X=theirs $commit_sha
 
           # Push the cherry-picked commit to the remote repository
           git push origin HEAD
