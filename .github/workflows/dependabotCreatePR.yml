@@ -38,9 +38,10 @@ jobs:
           git cherry-pick $commit_sha
 
           # Push the cherry-picked commit to the remote repository
-          git push origin ${{ github.event.workflow_run.head_branch }}
+          git push origin HEAD
           
       - name: Create branch and PR
         run: |
+          source_branch=${{ github.event.pull_request.head.ref }}
           title="${{ github.event.pull_request.title }}"
           gh pr create -B master -H $source_branch-master --title "$title - master" --body "Dependabot security update - $title" --label "dependencies" --reviewer s-marinkovic
