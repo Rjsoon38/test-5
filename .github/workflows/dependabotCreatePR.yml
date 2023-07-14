@@ -1,0 +1,46 @@
+name: Dependabot create PR for master branch
+on:
+  pull_request:
+    types:
+      - opened
+      
+permissions:
+  pull-requests: write
+  issues: write
+  repository-projects: write
+  contents: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create new branch
+        run: |
+          source_branch=${{ github.event.pull_request.head.ref }}
+          git fetch origin master
+          git checkout master
+          # Create a new branch from the source branch of the pull request
+          git checkout -b $source_branch-master
+
+          # Push the new branch to the remote repository
+          git push origin $source_branch-master
+
+      - name: Cherry-pick commit
+        run: |
+          # Retrieve the commit SHA from the pull request
+          commit_sha=${{ github.event.pull_request.head.sha }}
+
+          # Cherry-pick the commit onto the new branch
+          git cherry-pick $commit_sha
+
+          # Push the cherry-picked commit to the remote repository
+          git push origin ${{ github.event.workflow_run.head_branch }}
+          
+      - name: Create branch and PR
+        run: |
+          title="${{ github.event.pull_request.title }}"
+          gh pr create -B master -H $source_branch-master --title "$title - master" --body "Dependabot security update - $title" --label "dependencies" --reviewer s-marinkovic
