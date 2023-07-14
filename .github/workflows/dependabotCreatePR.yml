@@ -21,7 +21,7 @@ jobs:
       - name: Create new branch
         run: |
           source_branch=${{ github.event.pull_request.head.ref }}
-          git fetch origin master
+          git fetch --all
           git checkout master
           # Create a new branch from the source branch of the pull request
           git checkout -b $source_branch-master
@@ -29,8 +29,6 @@ jobs:
           # Push the new branch to the remote repository
           git push origin $source_branch-master
 
-      - name: Cherry-pick commit
-        run: |
           # Retrieve the commit SHA from the pull request
           commit_sha=${{ github.event.pull_request.head.sha }}
 
